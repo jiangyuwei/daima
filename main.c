@@ -1,34 +1,252 @@
-#include<stdio.h>
+#include<stdio.h>   
+#include<string.h>
+#include<stdlib.h>
 
-int main(void)
+struct node
 {
-  int i;
-  int j;
-  int k;
-  int temp;
-  int a[10]={12,31,54,67,87,43,55,76,90,42};
-  for (i = 0; i < 10; i++)  
-  {  
-   printf("%5d",a[i]);
-  }  
-   printf("\n");  
+ int number;
+ char name[20];
+ int score;
+ struct node *next;
+};
 
-for(i=0;i<9;i++)
- {
-   k=i;
-  for(j=i+1;j<10;j++)
-  {
-   if (a[k]>a[j])
+typedef struct node V_NODE;
+void print_word(void);
+void print_link(V_NODE *head);
+V_NODE *add_link(V_NODE *head);
+V_NODE *delete_link(V_NODE *head);
+V_NODE *create_link(int n);
+void save_link(V_NODE *p);
+V_NODE *load_link(void);
+
+void print_list(void);
+int get_choice(void);
+V_NODE *head_link(void);
+int main(void)
+{  
+   
+   V_NODE *head = NULL;
+   char flag = 0;  
+   head = load_link();
+   while(!flag)
    {
-     k=j;
+        print_list();
+        switch(get_choice())
+        {
+              case 1 :  head = add_link(head); break;
+              case 2 :  head = delete_link(head);break;
+              case 3 :  print_link(head); break;
+              case 4 :  save_link(head);break;
+              case 5 :  flag = 1; break;
+              default :  break;
+        }
    }
-  }
-  if(k !=i)
+   return 0;
+}
+
+int get_choice(void)
+{
+   char choice[20];
+   
+   scanf("%s",choice);
+   return atoi(choice);
+}
+void print_list(void)
+{
+   printf("please make a choice:\n");
+   printf("1.Add node\n");
+   printf("2.delete node\n");
+   printf("3.print link\n");
+   printf("4.save link\n");
+   printf("5.exit\n");
+
+}
+void save_link(V_NODE *p)
+{
+   FILE *fp;
+   fp = fopen("text1","r+");
+   if(fp == NULL)
+   {
+     perror("fp");
+      exit(0);
+   }
+   while(p != NULL)
+   {
+    fprintf(fp,"%d\t%s\t%d\n",p->number,p->name,p->score);
+    p = p->next;
+   }
+   fclose(fp);
+}
+
+V_NODE *load_link(void)
+{
+    FILE *fp;
+    int num;
+    int sc;
+    char na[20];
+    V_NODE *head = NULL;
+    V_NODE *p = NULL;
+
+    fp = fopen("text1","r+");
+    if(fp == NULL)
+    {
+       perror("fp");
+       exit(0);
+    }
+    if(fscanf(fp,"%d%s%d",&num,na,&sc)!=EOF)
+    {
+       p =malloc(sizeof(V_NODE));
+       if(p==NULL)
+       {
+        perror("malloc");
+        exit(0);
+       }
+       p->number = num;
+       strcpy(p->name,na);
+       p->score = sc;
+       p->next = NULL;
+       head = p;
+    }
+    while(fscanf(fp,"%d%s%d",&num,na,&sc) != EOF)
+    {
+      p->next = malloc(sizeof(V_NODE));
+      if(p->next ==NULL)
+      {
+        perror("malloc");
+        exit(0);
+      }
+      p->next->number= num;
+      strcpy(p->next->name,na);
+      p->next->score = sc;
+      p->next->next = NULL;
+      p=p->next;
+    }
+    return head;
+}
+V_NODE *create_link(int n)
+{  
+  
+   V_NODE *p = NULL;
+   V_NODE *head = NULL;
+   int i=0;
+
+   p = head = malloc(sizeof(V_NODE));
+   if(NULL == p)
+   {
+       perror("malloc");
+       exit(0);
+
+   }
+   p->number = 1;     
+   strcpy(p->name,"a");
+   p->score = 98;
+   p->next = NULL;         
+   
+   for(i = 1; i < n; i++) 
+   {
+       p->next = malloc(sizeof(V_NODE));
+       if(p->next == NULL)
+       {
+            perror("malloc");
+            exit(0);
+       }
+       p->next->number = i+1;
+       strcpy(p->next->name,"a");
+       p->next->score = 98;
+       p->next->next = NULL;
+       p = p->next;
+      
+   }
+
+   return head;
+}
+
+V_NODE *add_link(V_NODE *head)
+{  
+   V_NODE *p = NULL;
+   V_NODE *ptr = head;
+              
+   p = malloc(sizeof(V_NODE));
+   if(p == NULL)
+   {
+      perror("malloc");
+      exit(0);
+   }
+   printf("input number:\n");
+   scanf("%d",&p->number);
+   printf("input name:\n");
+   scanf("%s",p->name);
+   printf("input score:\n");
+   scanf("%d",&p->score);
+   p->next = NULL;
+   
+   if(ptr == NULL)
+   {  
+       printf("1\n");
+       return p;
+   }
+   if(p->number<ptr->number)
+   {
+       p->next = ptr;
+       head = p;
+       return head;
+   }
+   while((ptr->next != NULL) && (p->number > ptr->next->number))
+   {
+      ptr = ptr->next;
+   }
+   p->next = ptr->next;
+   ptr->next = p;
+   return head;
+}
+V_NODE *delete_link(V_NODE *head)
+{ 
+  int num = 0;
+  V_NODE *p = head;
+  V_NODE *ptr = NULL;
+  if(head == NULL)
   {
-      temp=a[i];
-      a[i]=a[k];
-      a[k]=temp;
+    printf("empty link!\n");
+    return NULL;
   }
- }
-  return 0;
+  printf("please input number of node to delete:\n");
+  scanf("%d",&num);
+  if(num == head->number)
+  {
+      head = head->next;
+      free(p);
+      return head;
+  }
+  while((p->next !=NULL) && (p->next->number != num))
+  {
+     p=p->next;
+  }
+  if(p->next == NULL)
+  {
+    printf("no number match!\n");
+  }
+  else
+  {
+   ptr = p->next;
+   p->next = p->next->next;
+   free(ptr);
+  }
+  return head;
+}
+
+void print_link(V_NODE *p)
+{  
+   if(p == NULL)
+   {
+     printf("link empty.\n");
+   }
+   printf("student information:\n");
+   printf("number\tname\tscore\n");
+   while(p != NULL)
+   {
+     printf("%d\t%s\t%d\n",p->number,p->name,p->score);
+     p = p->next;
+   }
+   printf("\n");
+  
 }

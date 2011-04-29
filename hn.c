@@ -13,12 +13,12 @@ int main(void)
    init_array(array, N);
 printf("original:\n");
    print_array(array,N);
-printf("press enter to start...\n");   
+//printf("press enter to start...\n");   
  getchar();
 printf("sort:\n");
 //   bubble_array(array, N);
   quick_sort(array,0,N-1);
-printf("finished .please press enter to list...\n");
+//printf("finished .please press enter to list...\n");
    print_array(array, N);
 
    return 0;
